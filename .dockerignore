@@ -1,0 +1,15 @@
+**/.venv
+**/venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.env
+**/.DS_Store
+**/vector_store
+source_code/eval/results
+sample_code
+report
+demo_video
+*.pdf
+!source_code/data/**/*.pdf
+.git

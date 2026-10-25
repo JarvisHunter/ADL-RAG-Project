@@ -1,0 +1,34 @@
+# Usage (from this docker/ folder):
+#   docker compose up --build           -> http://localhost:8501
+#   docker compose run --rm rag-app python cli.py ingest --rebuild
+#   docker compose run --rm rag-app python cli.py ask "What is CS 201 about?"
+#
+# Ollama is expected to run on the host (or set OLLAMA_BASE_URL to another server).
+
+services:
+  rag-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: handbook-rag:latest
+    container_name: handbook-rag
+    ports:
+      - "${APP_PORT:-8501}:8501"
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      RAG_LLM_MODEL: ${RAG_LLM_MODEL:-qwen2.5:0.5b}
+      RAG_EMBED_MODEL: ${RAG_EMBED_MODEL:-nomic-embed-text}
+      RAG_DATA_DIR: /app/data/${RAG_DOCS_SUBDIR:-handbook}
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+    extra_hosts:
+      # Lets Linux hosts resolve host.docker.internal (Docker Desktop does this automatically).
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Documents are mounted from the repo so new PDFs need no rebuild.
+      - ../source_code/data:/app/data
+      # Vectors persist across container restarts.
+      - rag_vector_store:/app/vector_store
+    restart: unless-stopped
+
+volumes:
+  rag_vector_store:
