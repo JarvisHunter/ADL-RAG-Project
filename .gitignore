@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Local config / secrets
+.env
+
+# Generated data
+vector_store/
+source_code/eval/results/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Office lock files
+~$*
+
+# Course handout (not redistributed)
+/Final-project-ADL.pdf
+/Final-project-ADL-pptx.pdf
+
+# Large demo videos (host externally, link in the report)
+demo_video/*.mp4
+demo_video/*.mov
