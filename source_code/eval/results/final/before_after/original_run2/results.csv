@@ -1,0 +1,141 @@
+model,id,category,question,history,reference,answer,retrieved,retrieval_hit,keyword_score,refused,latency_s,error,label,notes
+qwen3.5:0.8b,Q01,program_requirements,How many credits are required for the Computer Science major?,,The major requires 56 credits.,"The Computer Science major requires a total of 56 credits. This is calculated from the 56 credits of Major Requirements, which include 40 credits of General Curriculum Requirements and 16 credits of Major Requirements.
+
+[CS_MajorHandbook.pdf p.2]",CS_MajorHandbook.pdf p.7 (0.86); CS_MajorHandbook.pdf p.7 (0.80); CS_MajorHandbook.pdf p.2 (0.76); CS_MajorHandbook.pdf p.13 (0.76); CS_MajorHandbook.pdf p.4 (0.74),True,1.0,False,9.53,,incorrect,Invented 40 + 16 breakdown.
+qwen3.5:0.8b,Q02,program_requirements,Which courses are required for the Computer Science major?,,"CS 101, CS 201, CS 203, MATH 202, three intermediate courses, CS 302, four advanced courses, and Capstone I & II (or two additional intermediate/advanced courses).","The Computer Science major requires the following courses:
+
+*   **Foundational Courses:** CS 101 (Introduction to Programming), CS 201 (Data Structures & Algorithms), CS 203 (Computer Organization), and MATH 202 (Discrete Math).
+*   **Intermediate Courses:** Three intermediate courses (12 credits).
+*   **Advanced Courses:** Four advanced courses (16 credits).
+*   **Capstone Courses:** Capstone I and Capstone II (8 credits).
+*   **Total Credits:** 56 credits.
+
+*Note: The handbook also specifies that students must complete at least two Computer Science courses (MATH 202) and a programming course (CS 101 or CS 103) to formally declare the major.*",CS_MajorHandbook.pdf p.7 (0.82); CS_MajorHandbook.pdf p.7 (0.78); CS_MajorHandbook.pdf p.8 (0.75); CS_MajorHandbook.pdf p.14 (0.75); CS_MajorHandbook.pdf p.4 (0.75),True,0.83,False,10.99,,incomplete,Misses CS 302.
+qwen3.5:0.8b,Q03,academic_policies,What must a student complete before formally declaring Computer Science as their major?,,At least two Computer Science courses (MATH 202 Discrete Math also counts).,"To formally declare Computer Science as their major, a student must complete at least two Computer Science courses (MATH 202 - Discrete Math is also counted). Additionally, the student must take a total of six courses for the minor, including one programming course (4 credits) and one 200-level or 300-level CS course (4 credits).
+
+[CS_MajorHandbook.pdf p.7]",CS_MajorHandbook.pdf p.7 (0.81); CS_MajorHandbook.pdf p.1 (0.71); CS_MajorHandbook.pdf p.4 (0.70); CS_MajorHandbook.pdf p.14 (0.70); CS_MajorHandbook.pdf p.8 (0.70),True,1.0,False,9.02,,incorrect,Adds that the student must take the minor's six courses.
+qwen3.5:0.8b,Q04,program_requirements,How many credits and courses does the Computer Science minor require?,,24 credits: six courses.,"The Computer Science minor requires **24 credits** in total, which consists of **6 courses**.
+
+*   **Programming Course:** 4 credits (CS 101, CS 103, or CS 104)
+*   **CS Course:** 4 credits (100-level or 200-level)
+*   **Data Structures & Algorithms:** 4 credits (CS 201)
+*   **Intermediate Course:** 4 credits
+*   **CS Course:** 4 credits (200-level or 300-level)
+*   **Advanced Course:** 4 credits
+
+*Note: The minor also requires 1 Computer Science course (MATH 202) and 1 Programming course (4 credits), totaling 5 courses.*",CS_MajorHandbook.pdf p.7 (0.88); CS_MajorHandbook.pdf p.7 (0.78); CS_MajorHandbook.pdf p.2 (0.76); CS_MajorHandbook.pdf p.13 (0.75); CS_MajorHandbook.pdf p.11 (0.75),True,1.0,False,11.13,,correct,
+qwen3.5:0.8b,Q05,academic_policies,What is required to declare a minor in Computer Science?,,At least one Computer Science course (MATH 202 also counts).,"To formally declare a minor in Computer Science, the student must complete at least one Computer Science course (MATH 202 - Discrete Math is also counted) and take a total of six courses: one programming course (4 credits) and five other courses totaling 24 credits.
+
+The six required courses include:
+*   One programming course (4 credits) from CS 101, CS 103, or CS 104.
+*   One 100-level or 200-level CS course (4 credits).
+*   CS 201 – Data Structures & Algorithms (4 credits).
+*   One intermediate course (4 credits).
+*   One 200-level or 300-level CS course (4 credits).
+*   One advanced course (4 credits).
+
+Additionally, the student must complete at least one Computer Science course (MATH 202 - Discrete Math is also counted).
+
+[CS_MajorHandbook.pdf p.7]",CS_MajorHandbook.pdf p.7 (0.85); CS_MajorHandbook.pdf p.2 (0.69); CS_MajorHandbook.pdf p.1 (0.67); CS_MajorHandbook.pdf p.7 (0.65); CS_MajorHandbook.pdf p.11 (0.65),True,1.0,False,11.75,,ambiguous,Merges declaration rule with the minor's completion requirements.
+qwen3.5:0.8b,Q06,academic_policies,What are the eligibility criteria for enrolling in CS 401 Capstone I?,,A minimum major GPA of 3.5 and approval of a successful application.,Eligibility for enrollment in CS 401 includes a minimum major GPA of 3.5 and approval of a successful application. [CS_MajorHandbook.pdf p.9],CS_MajorHandbook.pdf p.9 (0.81); CS_MajorHandbook.pdf p.7 (0.63); CS_MajorHandbook.pdf p.8 (0.63); CS_MajorHandbook.pdf p.2 (0.62); CS_MajorHandbook.pdf p.13 (0.62),True,1.0,False,8.79,,correct,
+qwen3.5:0.8b,Q07,academic_policies,"What can students do instead of the capstone, and what is the consequence?",,Take two additional intermediate or advanced courses; they graduate without honors (capstone = graduate with honors).,"Students can take the capstone as an optional course to demonstrate creative, collaborative, and entrepreneurial thinking. If they do not complete the capstone, they may be required to take a different course or course credit instead.",CS_MajorHandbook.pdf p.15 (0.61); CS_MajorHandbook.pdf p.12 (0.61); CS_MajorHandbook.pdf p.5 (0.59); CS_MajorHandbook.pdf p.4 (0.56); CS_MajorHandbook.pdf p.8 (0.56),True,0.0,False,9.81,,incorrect,Invented alternative.
+qwen3.5:0.8b,Q08,course_offerings,What are the prerequisites for CS 302 Algorithms & Theory of Computing?,,CS 201 and MATH 202.,The prerequisites for CS 302 Algorithms & Theory of Computing are CS201 and MATH 202.,CS_MajorHandbook.pdf p.17 (0.80); CS_MajorHandbook.pdf p.17 (0.74); CS_MajorHandbook.pdf p.14 (0.72); CS_MajorHandbook.pdf p.12 (0.71); CS_MajorHandbook.pdf p.13 (0.70),True,1.0,False,8.37,,correct,
+qwen3.5:0.8b,Q09,course_offerings,What is the prerequisite for CS311 Advanced Deep Learning?,,CS313 Deep Learning for AI.,"The prerequisite for CS311 Advanced Deep Learning is CS313 Deep Learning for AI.
+
+[CS_MajorHandbook.pdf p.18]",CS_MajorHandbook.pdf p.18 (0.88); CS_MajorHandbook.pdf p.18 (0.80); CS_MajorHandbook.pdf p.18 (0.73); CS_MajorHandbook.pdf p.17 (0.71); CS_MajorHandbook.pdf p.13 (0.69),True,1.0,False,7.97,,correct,
+qwen3.5:0.8b,Q10,course_offerings,How often is CS 210 Computer Networks offered?,,Its availability is listed as 'On holding' (not currently scheduled).,"CS 210 Computer Networks is offered on a holding basis, meaning it is not offered every year.
+
+[CS_MajorHandbook.pdf p.16]",CS_MajorHandbook.pdf p.16 (0.75); CS_MajorHandbook.pdf p.13 (0.70); CS_MajorHandbook.pdf p.13 (0.66); CS_MajorHandbook.pdf p.17 (0.66); CS_MajorHandbook.pdf p.17 (0.63),True,1.0,False,9.69,,ambiguous,"'Offered on a holding basis, not every year'."
+qwen3.5:0.8b,Q11,course_offerings,Which programming language is mainly used in CS 201 Data Structures & Algorithms?,,Java (with some Python/C++ implementations).,"CS201 Data Structures & Algorithms primarily uses Java as the main programming language.
+
+[CS_MajorHandbook.pdf p.14]",CS_MajorHandbook.pdf p.14 (0.79); CS_MajorHandbook.pdf p.14 (0.75); CS_MajorHandbook.pdf p.16 (0.74); CS_MajorHandbook.pdf p.17 (0.71); CS_MajorHandbook.pdf p.11 (0.71),True,1.0,False,8.21,,correct,
+qwen3.5:0.8b,Q12,course_offerings,What topics are covered in CS 211 Operating Systems?,,"Concurrency (processes, threads, scheduling, synchronization, deadlock), memory management (paging, segmentation, swapping), file systems, plus scalability, virtualization, security and distributed computing.","CS 211 Operating Systems covers the following topics:
+
+- Processes and threads
+- CPU scheduling
+- Context switching
+- Synchronization
+- Deadlock
+
+[CS_MajorHandbook.pdf p.16]",CS_MajorHandbook.pdf p.16 (0.79); CS_MajorHandbook.pdf p.16 (0.65); CS_MajorHandbook.pdf p.16 (0.65); CS_MajorHandbook.pdf p.14 (0.65); CS_MajorHandbook.pdf p.14 (0.64),True,0.0,False,8.14,,incomplete,Concurrency topics only.
+qwen3.5:0.8b,Q13,course_offerings,Give some examples of advanced courses in the Computer Science major.,,"Foundations of Software Engineering, Database Systems, Computer Security, Cloud Computing, HCI, Computer Graphics, Game Design, Machine Learning, Deep Learning, Advanced Deep Learning, Computer Vision, NLP, Optimization, Computational Social Media, Bioinformatics.","Based on the provided context, here are examples of advanced courses in the Computer Science major:
+
+*   **Foundations of Software Engineering**
+*   **Database Systems**
+*   **Computer Security**
+*   **Cloud Computing**
+*   **Human-Computer Interaction**
+*   **Computer Graphics**
+*   **Game Design & Development**
+*   **Machine Learning**
+*   **Deep Learning**
+*   **Advanced Deep Learning**
+*   **Computer Vision**
+*   **Natural Language Processing**
+*   **Optimization**
+*   **Computational Social Media**
+
+These courses are listed under the ""Advanced Courses"" section of the major handbook.",CS_MajorHandbook.pdf p.8 (0.81); CS_MajorHandbook.pdf p.11 (0.78); CS_MajorHandbook.pdf p.7 (0.77); CS_MajorHandbook.pdf p.8 (0.76); CS_MajorHandbook.pdf p.8 (0.74),True,1.0,False,10.62,,correct,
+qwen3.5:0.8b,Q14,course_offerings,"In CS 207 Software Construction, what kind of applications do students build?",,Android applications using Java.,"Students in CS 207 Software Construction build Android applications using Java. They also work in teams to practice designing software using UML models such as use-case, sequence, and class diagrams.",CS_MajorHandbook.pdf p.15 (0.76); CS_MajorHandbook.pdf p.16 (0.72); CS_MajorHandbook.pdf p.15 (0.70); CS_MajorHandbook.pdf p.11 (0.69); CS_MajorHandbook.pdf p.14 (0.68),True,1.0,False,8.32,,correct,
+qwen3.5:0.8b,Q15,learning_outcomes,What are the Major Learning Outcomes (MLOs) of the Computer Science program?,,"MLO1: understand fundamental CS (theory and systems); MLO2: explain emerging aspects of CS (AI, ML, data science...); MLO3: develop real-world applications.","The Major Learning Outcomes (MLOs) for the Computer Science program are:
+
+*   **MLO 1:** Demonstrate an understanding of fundamental computer science by illustrating core concepts, comparing methods, analyzing and solving problems in both theory and systems.
+*   **MLO 2:** Explain emerging aspects of the computer science discipline (e.g., artificial intelligence, machine learning, data science, business analytics, digital media, etc.).
+*   **MLO 3:** Develop real-world applications (e.g., software systems and frameworks, mobile apps, data pipeline, etc.) by using knowledge of computer science and other disciplines.
+
+These outcomes are aligned with the following Program Learning Outcomes (PLOs):
+*   PLO1: Demonstrate an understanding of fundamental computer science by illustrating core concepts, comparing methods, analyzing and solving problems in both theory and systems.
+*   PLO2: Explain emerging aspects of the computer science discipline (e.g., artificial intelligence, machine learning, data science, business analytics, digital media, etc.).
+*   PLO3: Develop real-world applications (e.g., software systems and frameworks, mobile apps, data pipeline, etc.) by using knowledge of computer science and other disciplines.",CS_MajorHandbook.pdf p.5 (0.76); CS_MajorHandbook.pdf p.11 (0.73); CS_MajorHandbook.pdf p.4 (0.71); CS_MajorHandbook.pdf p.2 (0.70); CS_MajorHandbook.pdf p.4 (0.69),True,1.0,False,12.55,,correct,
+qwen3.5:0.8b,Q16,learning_outcomes,What are the Program Educational Objectives (PEOs)?,,"PEO1: skills for employment or graduate school; PEO2: professional/personal ethics, collaboration and communication; PEO3: become innovators and thinkers solving CS challenges.","The Program Educational Objectives (PEOs) for the Computer Science major are designed to equip students with the necessary skills and knowledge to gain employment in industry or to study in graduate schools.
+
+Additionally, the objectives include:
+*   **Ethics and Collaboration:** Ingraining a strong code of professional and personal ethics, and the ability to effectively and creatively collaborate and communicate in the workplace and beyond.
+*   **Innovation and Thinking:** Cultivating students to become innovators and thinkers to solve computer science-related challenges.",CS_MajorHandbook.pdf p.4 (0.80); CS_MajorHandbook.pdf p.4 (0.62); CS_MajorHandbook.pdf p.4 (0.59); CS_MajorHandbook.pdf p.11 (0.59); CS_MajorHandbook.pdf p.4 (0.57),True,1.0,False,9.31,,correct,
+qwen3.5:0.8b,Q17,career,What jobs have Computer Science graduates obtained?,,"Software engineer, testing engineer, AI engineer, data engineer, business analyst, product owner, product development manager.","Graduates with a B.S. Computer Science have successfully gained employment as:
+*   Software engineer
+*   Testing engineer
+*   AI engineer
+*   Data engineer
+*   Business analyst
+*   Product owner
+*   Product development manager
+
+[CS_MajorHandbook.pdf p.5]",CS_MajorHandbook.pdf p.6 (0.71); CS_MajorHandbook.pdf p.5 (0.70); CS_MajorHandbook.pdf p.2 (0.64); CS_MajorHandbook.pdf p.4 (0.63); CS_MajorHandbook.pdf p.14 (0.62),True,1.0,False,8.94,,correct,
+qwen3.5:0.8b,Q18,teaching_assessment,How are students taught and assessed in the Computer Science major?,,"Active and collaborative learning; continuous formative assessment through discussion, in-class activities and applied learning, plus quizzes, exams, projects, presentations and the capstone.","Students are taught and assessed in the Computer Science major using a principle of active and collaborative learning, which includes summative methods and continuous formative assessment through discussion, in-class activities, and applied learning.
+
+Teaching and assessment methods are designed to equip students with the necessary skills to gain employment in industry or study in graduate schools.
+
+[CS_MajorHandbook.pdf p.12]",CS_MajorHandbook.pdf p.12 (0.77); CS_MajorHandbook.pdf p.12 (0.74); CS_MajorHandbook.pdf p.4 (0.73); CS_MajorHandbook.pdf p.4 (0.72); CS_MajorHandbook.pdf p.14 (0.71),True,1.0,False,8.85,,correct,
+qwen3.5:0.8b,Q19,program_requirements,"How many exploratory courses must students take, and how many can count toward the major?",,6 exploratory courses (24 credits); up to 2 courses (8 credits) can count toward the major.,"Students must take **6** exploratory courses (24 credits total), with **up to 2** of these courses (8 credits) being counted toward the major.
+
+[CS_MajorHandbook.pdf p.7]",CS_MajorHandbook.pdf p.7 (0.76); CS_MajorHandbook.pdf p.7 (0.68); CS_MajorHandbook.pdf p.6 (0.67); CS_MajorHandbook.pdf p.13 (0.64); CS_MajorHandbook.pdf p.11 (0.63),True,1.0,False,11.25,,correct,
+qwen3.5:0.8b,Q20,ambiguous,What degree is awarded after completing the degree requirements?,,"A B.S. in Computer Science. Note: the handbook's Degree Requirements section says 'Bachelor of Science in Applied Mathematics', an apparent copy-paste error that may mislead the model.",A Bachelor of Science in Applied Mathematics is awarded following the successful completion of the specified degree requirements.,CS_MajorHandbook.pdf p.6 (0.66); CS_MajorHandbook.pdf p.2 (0.62); CS_MajorHandbook.pdf p.3 (0.61); CS_MajorHandbook.pdf p.6 (0.60); CS_MajorHandbook.pdf p.5 (0.59),True,0.0,False,10.2,,ambiguous,Repeats the handbook's 'Applied Mathematics' error.
+qwen3.5:0.8b,Q21,out_of_scope,What is the tuition fee for the Computer Science program?,,Not stated in the handbook; the chatbot should say it cannot find the information.,I could not find this information in the provided documents.,CS_MajorHandbook.pdf p.2 (0.68); CS_MajorHandbook.pdf p.4 (0.65); CS_MajorHandbook.pdf p.19 (0.64); CS_MajorHandbook.pdf p.14 (0.64); CS_MajorHandbook.pdf p.4 (0.64),,,True,8.08,,correct,
+qwen3.5:0.8b,Q22,other,Which universities' programs were used as references for the CS curriculum?,,"Stanford University, Carnegie Mellon University and Cornell University.","Based on the provided context, the following universities' programs were used as references for the CS curriculum:
+
+*   **United States** (specifically, the University of California, Berkeley)
+*   **Europe** (specifically, the University of Cambridge)
+
+These references are found in the document:
+*   [CS_MajorHandbook.pdf p.6]
+*   [CS_MajorHandbook.pdf p.7]",CS_MajorHandbook.pdf p.2 (0.71); CS_MajorHandbook.pdf p.11 (0.69); CS_MajorHandbook.pdf p.14 (0.68); CS_MajorHandbook.pdf p.6 (0.68); CS_MajorHandbook.pdf p.7 (0.68),False,0.0,False,9.58,,incorrect,Invents UC Berkeley and Cambridge (retrieval missed p.19).
+qwen3.5:0.8b,Q23,off_topic,Who won the 2022 FIFA World Cup?,,Unrelated to the handbook; the chatbot should say it cannot find the information.,"The 2022 FIFA World Cup was won by Brazil, which defeated Argentina in the final at the Estádio da Luz in Rio de Janeiro.
+
+[CS_MajorHandbook.pdf p.3]",CS_MajorHandbook.pdf p.3 (0.41); CS_MajorHandbook.pdf p.1 (0.35); CS_MajorHandbook.pdf p.4 (0.34); CS_MajorHandbook.pdf p.4 (0.33); CS_MajorHandbook.pdf p.18 (0.33),,,False,8.45,,incorrect,"Answers from memory: 'Brazil ... in Rio de Janeiro', with a fake citation."
+qwen3.5:0.8b,Q24,off_topic,Write a Python function that reverses a string.,,Unrelated to the handbook; in strict mode the chatbot should decline.,"To reverse a string, you can use the built-in `str[::-1]` syntax in Python, which creates a reversed copy of the string. Alternatively, you can use a loop to iterate through the characters and swap them.
+
+```python
+def reverse_string(s):
+    return s[::-1]
+```
+
+```python
+def reverse_string_loop(s):
+    return """".join(reversed(s))
+```
+
+Both functions return a new string with the characters in reverse order.",CS_MajorHandbook.pdf p.16 (0.47); CS_MajorHandbook.pdf p.14 (0.46); CS_MajorHandbook.pdf p.11 (0.46); CS_MajorHandbook.pdf p.8 (0.45); CS_MajorHandbook.pdf p.16 (0.43),,,False,9.79,,incorrect,Writes Python code.
+qwen3.5:0.8b,Q25,follow_up,What is its prerequisite?,Tell me about CS311 Advanced Deep Learning.,"CS313 Deep Learning for AI (""its"" = CS311 from the previous turn).",Prerequisites: CS313,CS_MajorHandbook.pdf p.18 (0.89); CS_MajorHandbook.pdf p.18 (0.82); CS_MajorHandbook.pdf p.18 (0.74); CS_MajorHandbook.pdf p.17 (0.72); CS_MajorHandbook.pdf p.13 (0.71),True,1.0,False,8.53,,correct,
+qwen3.5:0.8b,Q26,follow_up,And how often is it offered?,What are the prerequisites for CS 302 Algorithms & Theory of Computing?,"Once a year (""it"" = CS 302 from the previous turn).",CS302 is offered once a year.,CS_MajorHandbook.pdf p.17 (0.80); CS_MajorHandbook.pdf p.13 (0.74); CS_MajorHandbook.pdf p.17 (0.72); CS_MajorHandbook.pdf p.14 (0.72); CS_MajorHandbook.pdf p.12 (0.71),True,1.0,False,8.67,,correct,
+qwen3.5:0.8b,Q27,follow_up_off_topic,Who won the 2022 FIFA World Cup?,What is the prerequisite for CS311 Advanced Deep Learning?,Off-topic question asked right after a handbook question; the chatbot should still refuse.,Argentina won the 2022 FIFA World Cup.,CS_MajorHandbook.pdf p.18 (0.71); CS_MajorHandbook.pdf p.18 (0.67); CS_MajorHandbook.pdf p.18 (0.63); CS_MajorHandbook.pdf p.15 (0.60); CS_MajorHandbook.pdf p.15 (0.60),,,False,8.34,,incorrect,'Argentina won' from memory.

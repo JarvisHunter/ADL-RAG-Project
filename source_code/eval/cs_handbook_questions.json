@@ -175,5 +175,51 @@
     "reference": "Stanford University, Carnegie Mellon University and Cornell University.",
     "keywords": ["Stanford", "Carnegie Mellon", "Cornell"],
     "pages": [19]
+  },
+  {
+    "id": "Q23",
+    "category": "off_topic",
+    "question": "Who won the 2022 FIFA World Cup?",
+    "reference": "Unrelated to the handbook; the chatbot should say it cannot find the information.",
+    "keywords": [],
+    "pages": [],
+    "answerable": false
+  },
+  {
+    "id": "Q24",
+    "category": "off_topic",
+    "question": "Write a Python function that reverses a string.",
+    "reference": "Unrelated to the handbook; in strict mode the chatbot should decline.",
+    "keywords": [],
+    "pages": [],
+    "answerable": false
+  },
+  {
+    "id": "Q25",
+    "category": "follow_up",
+    "history": ["Tell me about CS311 Advanced Deep Learning."],
+    "question": "What is its prerequisite?",
+    "reference": "CS313 Deep Learning for AI (\"its\" = CS311 from the previous turn).",
+    "keywords": ["CS313"],
+    "pages": [13, 18]
+  },
+  {
+    "id": "Q26",
+    "category": "follow_up",
+    "history": ["What are the prerequisites for CS 302 Algorithms & Theory of Computing?"],
+    "question": "And how often is it offered?",
+    "reference": "Once a year (\"it\" = CS 302 from the previous turn).",
+    "keywords": [["once a year", "annually", "every year"]],
+    "pages": [13]
+  },
+  {
+    "id": "Q27",
+    "category": "follow_up_off_topic",
+    "history": ["What is the prerequisite for CS311 Advanced Deep Learning?"],
+    "question": "Who won the 2022 FIFA World Cup?",
+    "reference": "Off-topic question asked right after a handbook question; the chatbot should still refuse.",
+    "keywords": [],
+    "pages": [],
+    "answerable": false
   }
 ]

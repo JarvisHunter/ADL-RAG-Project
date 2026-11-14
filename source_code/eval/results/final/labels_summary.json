@@ -1,0 +1,80 @@
+[
+  {
+    "model": "qwen3.5:0.8b",
+    "correct": 16,
+    "incomplete": 1,
+    "ambiguous": 3,
+    "incorrect": 7,
+    "answerable_correct": 12,
+    "answerable": 23,
+    "refusals_ok": 4,
+    "unanswerable": 4,
+    "latency": 9.6,
+    "total": 27
+  },
+  {
+    "model": "qwen2.5:0.5b-instruct (Q8_0)",
+    "correct": 12,
+    "incomplete": 4,
+    "ambiguous": 2,
+    "incorrect": 9,
+    "answerable_correct": 10,
+    "answerable": 23,
+    "refusals_ok": 2,
+    "unanswerable": 4,
+    "latency": 6.6,
+    "total": 27
+  },
+  {
+    "model": "llama3.2:3b",
+    "correct": 22,
+    "incomplete": 1,
+    "ambiguous": 2,
+    "incorrect": 2,
+    "answerable_correct": 18,
+    "answerable": 23,
+    "refusals_ok": 4,
+    "unanswerable": 4,
+    "latency": 9.4,
+    "total": 27
+  },
+  {
+    "model": "qwen2.5:3b",
+    "correct": 20,
+    "incomplete": 0,
+    "ambiguous": 2,
+    "incorrect": 5,
+    "answerable_correct": 16,
+    "answerable": 23,
+    "refusals_ok": 4,
+    "unanswerable": 4,
+    "latency": 7.3,
+    "total": 27
+  },
+  {
+    "model": "gemma3:4b",
+    "correct": 23,
+    "incomplete": 0,
+    "ambiguous": 2,
+    "incorrect": 2,
+    "answerable_correct": 19,
+    "answerable": 23,
+    "refusals_ok": 4,
+    "unanswerable": 4,
+    "latency": 11.3,
+    "total": 27
+  },
+  {
+    "model": "qwen3.5:9b",
+    "correct": 24,
+    "incomplete": 0,
+    "ambiguous": 1,
+    "incorrect": 2,
+    "answerable_correct": 20,
+    "answerable": 23,
+    "refusals_ok": 4,
+    "unanswerable": 4,
+    "latency": 17.8,
+    "total": 27
+  }
+]

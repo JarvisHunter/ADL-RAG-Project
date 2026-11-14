@@ -7,6 +7,9 @@ sources and latency, plus two automatic signals:
 - retrieval_hit: at least one retrieved chunk comes from an expected page
 - keyword_score: fraction of expected keyword groups found in the answer
 
+A question may list earlier user turns under "history"; they are asked first (with the
+model's real answers kept as chat history) to test follow-up questions.
+
 Automatic scores are only a guide. The output CSV has an empty `label` column
 to fill in by hand (correct / incorrect / incomplete / ambiguous) for the report.
 
@@ -23,6 +26,7 @@ import csv
 import json
 import re
 import statistics
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Sequence, Union
@@ -56,13 +60,44 @@ def is_refusal(answer: str) -> bool:
     return any(pattern in lowered for pattern in REFUSAL_PATTERNS)
 
 
+def ask_with_retry(pipeline: RAGPipeline, question: str, history: list, attempts: int = 3):
+    """A remote Ollama server can drop a connection now and then; don't lose a long run to it."""
+    for attempt in range(1, attempts + 1):
+        try:
+            return pipeline.ask(question, history)
+        except Exception as exc:
+            if attempt == attempts:
+                raise
+            wait = 10 * attempt
+            print(f"  ! {type(exc).__name__}: {exc} - retrying in {wait}s", flush=True)
+            time.sleep(wait)
+
+
+def error_row(model: str, item: dict, exc: Exception) -> dict:
+    return {
+        "model": model, "id": item["id"], "category": item["category"], "question": item["question"],
+        "history": " / ".join(item.get("history", [])), "reference": item.get("reference", ""),
+        "answer": "", "retrieved": "", "retrieval_hit": "", "keyword_score": "", "refused": False,
+        "latency_s": 0.0, "error": f"{type(exc).__name__}: {exc}", "label": "", "notes": "",
+    }
+
+
 def evaluate_model(model: str, questions: List[dict], args) -> List[dict]:
     settings = get_settings(llm_model=model, top_k=args.top_k, data_dir=args.data_dir)
     pipeline = RAGPipeline(settings)
     pipeline.ensure_index()
     rows = []
     for item in questions:
-        response = pipeline.ask(item["question"])
+        try:
+            history = []
+            for previous in item.get("history", []):
+                reply = ask_with_retry(pipeline, previous, history)
+                history += [{"role": "user", "content": previous}, {"role": "assistant", "content": reply.answer}]
+            response = ask_with_retry(pipeline, item["question"], history)
+        except Exception as exc:  # keep going; the row records the failure
+            rows.append(error_row(model, item, exc))
+            print(f"[{model}] {item['id']} ERROR {exc}", flush=True)
+            continue
         retrieved_pages = sorted({c.page for c in response.sources if c.page})
         expected_pages = set(item.get("pages", []))
         answerable = item.get("answerable", True)
@@ -71,6 +106,7 @@ def evaluate_model(model: str, questions: List[dict], args) -> List[dict]:
             "id": item["id"],
             "category": item["category"],
             "question": item["question"],
+            "history": " / ".join(item.get("history", [])),
             "reference": item.get("reference", ""),
             "answer": response.answer,
             "retrieved": "; ".join(f"{c.label} ({c.score:.2f})" for c in response.sources),
@@ -80,30 +116,36 @@ def evaluate_model(model: str, questions: List[dict], args) -> List[dict]:
             else "",
             "refused": is_refusal(response.answer),
             "latency_s": response.latency_s,
+            "error": "",
             "label": "",  # fill in manually: correct / incorrect / incomplete / ambiguous
             "notes": "",
         }
         rows.append(row)
-        print(f"[{model}] {item['id']} kw={row['keyword_score']} hit={row['retrieval_hit']} {response.latency_s:.1f}s")
+        print(f"[{model}] {item['id']} kw={row['keyword_score']} hit={row['retrieval_hit']} {response.latency_s:.1f}s", flush=True)
     return rows
 
 
 def summarise(rows: List[dict]) -> str:
     lines = [
-        "| Model | Questions | Retrieval hit rate | Mean keyword score | Out-of-scope refusals | Mean latency (s) |",
-        "|---|---|---|---|---|---|",
+        "| Model | Questions | Retrieval hit rate | Mean keyword score | Out-of-scope refusals | Answerable but refused | Mean latency (s) |",
+        "|---|---|---|---|---|---|---|",
     ]
+    errors = sum(bool(r["error"]) for r in rows)
     for model in dict.fromkeys(r["model"] for r in rows):
-        subset = [r for r in rows if r["model"] == model]
+        subset = [r for r in rows if r["model"] == model and not r["error"]]
         hits = [r["retrieval_hit"] for r in subset if r["retrieval_hit"] != ""]
         scores = [r["keyword_score"] for r in subset if r["keyword_score"] != "" and r["keyword_score"] == r["keyword_score"]]
         oos = [r for r in subset if r["keyword_score"] == ""]
+        answerable = [r for r in subset if r["keyword_score"] != ""]
         lines.append(
             f"| {model} | {len(subset)} | {sum(hits) / max(len(hits), 1):.0%} | "
             f"{statistics.mean(scores) if scores else 0:.2f} | "
             f"{sum(r['refused'] for r in oos)}/{len(oos)} | "
-            f"{statistics.mean(r['latency_s'] for r in subset):.1f} |"
+            f"{sum(r['refused'] for r in answerable)}/{len(answerable)} | "
+            f"{statistics.mean(r['latency_s'] for r in subset) if subset else 0:.1f} |"
         )
+    if errors:
+        lines += ["", f"{errors} question(s) failed after retries and are excluded above (see the `error` column)."]
     return "\n".join(lines)
 
 
@@ -120,11 +162,12 @@ def write_report(rows: List[dict], out_dir: Path) -> None:
     for r in rows:
         md += [
             f"### {r['id']} · {r['model']} · {r['category']}",
+            *([f"*Asked after:* {r['history']}", ""] if r["history"] else []),
             f"**Q:** {r['question']}",
             "",
             f"**Reference:** {r['reference']}",
             "",
-            f"**Answer:** {r['answer']}",
+            f"**Answer:** {r['answer']}" if not r["error"] else f"**Error:** {r['error']}",
             "",
             f"*Retrieved:* {r['retrieved'] or '(none)'}  ",
             f"*Retrieval hit:* {r['retrieval_hit']} · *keyword score:* {r['keyword_score']} · *latency:* {r['latency_s']}s",
@@ -144,12 +187,11 @@ def main() -> None:
     args = parser.parse_args()
 
     questions = json.loads(Path(args.questions).read_text(encoding="utf-8"))[: args.limit]
+    out_dir = args.out or SOURCE_ROOT / "eval" / "results" / datetime.now().strftime("%Y%m%d-%H%M%S")
     rows: List[dict] = []
     for model in args.models:
         rows += evaluate_model(model, questions, args)
-
-    out_dir = args.out or SOURCE_ROOT / "eval" / "results" / datetime.now().strftime("%Y%m%d-%H%M%S")
-    write_report(rows, out_dir)
+        write_report(rows, out_dir)  # after every model, so a crash late in a long run loses little
     print("\n" + summarise(rows))
     print(f"\nSaved results to {out_dir}")
 

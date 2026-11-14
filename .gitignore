@@ -10,8 +10,9 @@ venv/
 .env
 
 # Generated data
-vector_store/
-source_code/eval/results/
+vector_store*/
+source_code/eval/results/*
+!source_code/eval/results/final/
 
 # OS / editor
 .DS_Store
