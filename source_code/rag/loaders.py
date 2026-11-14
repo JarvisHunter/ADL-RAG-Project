@@ -17,6 +17,9 @@ from langchain_core.documents import Document
 from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)
+# pypdf logs a warning for every malformed cross-reference ("Ignoring wrong pointing object"),
+# which the CS handbook has dozens of; the text is extracted fine, so keep only real errors.
+logging.getLogger("pypdf").setLevel(logging.ERROR)
 
 
 def clean_text(text: str) -> str:

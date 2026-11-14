@@ -5,7 +5,7 @@
 **/.pytest_cache
 **/.env
 **/.DS_Store
-**/vector_store
+**/vector_store*
 source_code/eval/results
 sample_code
 report

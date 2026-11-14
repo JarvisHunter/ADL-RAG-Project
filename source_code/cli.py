@@ -126,6 +126,8 @@ def main(argv=None) -> int:
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING, format="%(levelname)s %(message)s")
+    # One "HTTP Request: POST .../api/embed" line per Ollama call drowns out the useful -v output.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     settings = build_settings(args)
 
     if args.command == "check":
