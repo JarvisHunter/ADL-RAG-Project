@@ -16,6 +16,8 @@ services:
       - "${APP_PORT:-8501}:8501"
     environment:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      # Bearer token for a protected Ollama server (optional).
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-${LLM_API_KEY:-}}
       RAG_LLM_MODEL: ${RAG_LLM_MODEL:-qwen2.5:0.5b}
       RAG_EMBED_MODEL: ${RAG_EMBED_MODEL:-nomic-embed-text}
       RAG_DATA_DIR: /app/data/${RAG_DOCS_SUBDIR:-handbook}

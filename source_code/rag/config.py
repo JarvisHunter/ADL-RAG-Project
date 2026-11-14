@@ -17,10 +17,18 @@ from dotenv import load_dotenv
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
 
 load_dotenv(SOURCE_ROOT / ".env")
+# Also pick up docker/.env so local runs share the same settings (values above win).
+load_dotenv(SOURCE_ROOT.parent / "docker" / ".env")
 
 
 def _env(name: str, default: str) -> str:
     return os.getenv(name, default)
+
+
+def _ollama_base_url() -> str:
+    # The Ollama client uses the native /api routes, so drop an OpenAI-style "/v1" suffix.
+    url = _env("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+    return url.removesuffix("/v1")
 
 
 def _env_int(name: str, default: int) -> int:
@@ -52,10 +60,21 @@ class Settings:
     chunk_overlap: int = field(default_factory=lambda: _env_int("RAG_CHUNK_OVERLAP", 200))
 
     # Models (served by Ollama)
-    ollama_base_url: str = field(default_factory=lambda: _env("OLLAMA_BASE_URL", "http://127.0.0.1:11434"))
+    ollama_base_url: str = field(default_factory=_ollama_base_url)
+    # Bearer token for a protected Ollama server (empty = no auth header).
+    api_key: str = field(default_factory=lambda: _env("OLLAMA_API_KEY", _env("LLM_API_KEY", "")).strip(), repr=False)
     embed_model: str = field(default_factory=lambda: _env("RAG_EMBED_MODEL", "nomic-embed-text"))
     llm_model: str = field(default_factory=lambda: _env("RAG_LLM_MODEL", "qwen2.5:0.5b"))
     temperature: float = field(default_factory=lambda: _env_float("RAG_TEMPERATURE", 0.2))
+    # "Thinking" models (qwen3, qwen3.5, deepseek-r1, ...) reason before answering by default.
+    # Small ones can reason for minutes and return an empty answer, so it is off unless asked for.
+    think: bool = field(default_factory=lambda: _env_bool("RAG_THINK", False))
+    # Upper bound on generated tokens, so one request can never run forever.
+    max_tokens: int = field(default_factory=lambda: _env_int("RAG_MAX_TOKENS", 1024))
+    # Context window requested from Ollama (some models default to 256k, which is slow and memory-hungry).
+    num_ctx: int = field(default_factory=lambda: _env_int("RAG_NUM_CTX", 8192))
+    # Seconds before an Ollama request is abandoned.
+    request_timeout: float = field(default_factory=lambda: _env_float("RAG_REQUEST_TIMEOUT", 180))
 
     # Retrieval
     top_k: int = field(default_factory=lambda: _env_int("RAG_TOP_K", 5))
