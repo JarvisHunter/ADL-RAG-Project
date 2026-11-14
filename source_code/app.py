@@ -84,15 +84,13 @@ def sidebar():
     return settings, status, show_sources
 
 
-def knowledge_base_panel(pipeline: RAGPipeline) -> None:
+def knowledge_base_panel(pipeline: RAGPipeline):
     settings = pipeline.settings
     st.sidebar.divider()
     st.sidebar.subheader("📚 Knowledge base")
-    files = pipeline.index.indexed_files()
-    st.sidebar.caption(f"{len(files)} file(s) · {pipeline.index.count()} chunks · `{settings.data_dir.name}/`")
-    with st.sidebar.expander("Indexed files"):
-        for name in files:
-            st.write(f"- {name}")
+    # Filled in after uploads/rebuilds below so the counts include them in the same run.
+    summary = st.sidebar.empty()
+    file_list = st.sidebar.expander("Indexed files")
 
     uploads = st.sidebar.file_uploader(
         "Add documents", type=[ext.lstrip(".") for ext in SUPPORTED_EXTENSIONS], accept_multiple_files=True
@@ -112,11 +110,23 @@ def knowledge_base_panel(pipeline: RAGPipeline) -> None:
             stats = pipeline.ensure_index(force=True)
         st.sidebar.success(f"{stats['files']} file(s), {stats['chunks']} chunks")
 
+    files = pipeline.index.indexed_files()
+    summary.caption(f"{len(files)} file(s) · {pipeline.index.count()} chunks · `{settings.data_dir.name}/`")
+    with file_list:
+        for name in files:
+            st.write(f"- {name}")
+
     st.sidebar.divider()
-    col1, col2 = st.sidebar.columns(2)
+    # Filled by chat_actions() at the end of the run, once this turn's answer is in the history.
+    return st.sidebar.container()
+
+
+def chat_actions(slot) -> None:
+    col1, col2 = slot.columns(2)
     if col1.button("Clear chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
+    # The export text is fixed when the button is drawn, so draw it after the newest answer.
     col2.download_button(
         "Export chat", chat_as_markdown(), file_name="chat.md", mime="text/markdown", use_container_width=True
     )
@@ -138,7 +148,7 @@ def render_history(show_sources: bool) -> None:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             if message["role"] == "assistant":
-                if show_sources:
+                if show_sources and (message.get("sources") or not message.get("failed")):
                     render_sources(message.get("sources", []))
                 if message.get("latency") is not None:
                     st.caption(f"⏱ {message['latency']:.1f}s")
@@ -152,22 +162,24 @@ def answer(pipeline: RAGPipeline, question: str, show_sources: bool) -> None:
 
     with st.chat_message("assistant"):
         start = time.perf_counter()
+        chunks, failed = [], False
         try:
             with st.spinner("Searching the handbook..."):
                 chunks, tokens = pipeline.stream(question, history)
             text = st.write_stream(tokens)
         except Exception as exc:  # surface model/connection errors in the chat
             text = f"⚠️ Error while generating the answer: {exc}"
-            chunks = []
+            failed = True
             st.error(text)
         latency = time.perf_counter() - start
         sources = [{"label": c.label, "score": c.score, "content": c.content} for c in chunks]
-        if show_sources:
+        # After an error "no relevant passages" would be misleading, so only list what was retrieved.
+        if show_sources and (sources or not failed):
             render_sources(sources)
         st.caption(f"⏱ {latency:.1f}s")
 
     st.session_state.messages.append(
-        {"role": "assistant", "content": text, "sources": sources, "latency": latency}
+        {"role": "assistant", "content": text, "sources": sources, "latency": latency, "failed": failed}
     )
 
 
@@ -192,21 +204,27 @@ def main() -> None:
         st.error(str(exc))
         st.stop()
 
-    knowledge_base_panel(pipeline)
+    actions_slot = knowledge_base_panel(pipeline)
 
-    if not st.session_state.messages:
+    # Read the input first (it is pinned to the bottom wherever it is called) so the example
+    # buttons are hidden in the same run that answers the first question.
+    question = st.chat_input("Ask about the handbook...") or st.session_state.pending_question
+    if not st.session_state.messages and not question:
         st.markdown("**Try one of these:**")
         cols = st.columns(len(EXAMPLE_QUESTIONS))
         for col, example in zip(cols, EXAMPLE_QUESTIONS):
             if col.button(example, use_container_width=True):
+                # Rerun so the buttons disappear before the answer is drawn below them.
                 st.session_state.pending_question = example
+                st.rerun()
 
     render_history(show_sources)
 
-    question = st.chat_input("Ask about the handbook...") or st.session_state.pending_question
     if question:
         st.session_state.pending_question = None
         answer(pipeline, question, show_sources)
+
+    chat_actions(actions_slot)
 
 
 main()
