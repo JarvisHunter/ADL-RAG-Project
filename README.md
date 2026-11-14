@@ -13,12 +13,26 @@ User question (+ chat history) ────────────────�
                                             prompt (context + history) ──► Ollama LLM ──► answer + sources
 ```
 
+## Project status
+
+_Last updated: 2026-11-14_
+
+| Task | Status | Where |
+|---|---|---|
+| 1. PDF support | ✅ Done | `rag/loaders.py`; demo folder `source_code/data/docs/` (3 TXT + 1 PDF) |
+| 2. Handbook chatbot + evaluation | ✅ Done | 27 questions × 6 models, every answer labelled by hand: `source_code/eval/results/final/` |
+| 3. Docker deployment | ✅ Done | `docker/`; verified build → healthy → CLI and UI in the container → down |
+| 4. Web UI | ✅ Done | `source_code/app.py` |
+| 5. Report (≥ 1,500 words) | ✅ Done | `report/report.pdf` (source: `report/report.md`); fill in your name and student ID |
+| 6. Demo videos (Tasks 1–4) | ✅ Recorded | `demo_video/*.mp4` (git-ignored); add the upload links in `demo_video/README.md` |
+| 7. Repository | ✅ Done | this README, 18 pytest tests (no Ollama needed), `.env.example` files |
+
 ## Features
 
 | Task | What is implemented | Where |
 |---|---|---|
 | 1. PDF support | Page-level PDF extraction with `pypdf`, text cleaning (ligatures, hyphenation, TOC dot leaders), page numbers kept as metadata, image-only pages reported | [`source_code/rag/loaders.py`](source_code/rag/loaders.py) |
-| 2. Handbook chatbot | CS major handbook indexed by default; 22 test questions across requirements, courses, outcomes, policies, ambiguous and out-of-scope cases; evaluation script with multi-model comparison | [`source_code/eval/`](source_code/eval), [`source_code/evaluate.py`](source_code/evaluate.py) |
+| 2. Handbook chatbot | CS major handbook indexed by default; 27 test questions across requirements, courses, outcomes, policies, ambiguous, out-of-scope, off-topic and multi-turn follow-up cases; evaluation script with multi-model comparison; retrieval experiment over chunk size and embedding model | [`source_code/eval/`](source_code/eval), [`source_code/evaluate.py`](source_code/evaluate.py) |
 | 3. Docker | `Dockerfile` + `docker-compose.yml`, mounted documents, persistent vector-store volume, health check | [`docker/`](docker) |
 | 4. Web UI | Streamlit chat with conversation history, streaming answers, cited sources with similarity scores, model/top-k/temperature controls, document upload, index rebuild, chat export | [`source_code/app.py`](source_code/app.py) |
 | 7. Repo | This README, tests, reproducible configuration | — |
@@ -29,10 +43,17 @@ Other improvements over the baseline `sample_code/run_txt.py`:
   the vector store, so the index is rebuilt when documents or settings change (the baseline reused a
   stale index forever).
 - **Cosine similarity** instead of L2 distance, so scores are in `[0, 1]` and the threshold is meaningful.
+- **Calibrated relevance threshold**: similarity values depend on the embedding model. With
+  `mxbai-embed-large`, handbook questions score 0.61–0.88 but unrelated ones still score up to 0.50,
+  so the default cut-off is 0.55 for that model (0.3 otherwise); `RAG_SCORE_THRESHOLD` overrides it.
 - **Strict grounding mode** (default): the model answers only from the handbook and says
-  "I could not find this in the documents" otherwise. The baseline general-knowledge fallback is
-  still available (`RAG_ALLOW_GENERAL_KNOWLEDGE=true` or the UI toggle).
-- **Citations**: every chunk is labelled `[file p.N]` and the prompt asks the model to cite them.
+  "I could not find this in the documents" otherwise. When nothing relevant is retrieved this reply
+  is returned without calling the model, and the rule is repeated right after the question because
+  small models forget the system prompt after a few chat turns. The baseline general-knowledge
+  fallback is still available (`RAG_ALLOW_GENERAL_KNOWLEDGE=true` or the UI toggle).
+- **Citations**: every chunk is labelled `[file p.N]` and the prompt asks the model to cite them
+  (the citation example in the prompt is a label that was actually retrieved, so small models do not
+  copy a fixed file name).
 - **Follow-up questions**: the previous question is used as an extra retrieval query and the last few
   turns are sent to the model.
 
@@ -51,6 +72,7 @@ Other improvements over the baseline `sample_code/run_txt.py`:
 │   ├── app.py               # Streamlit web UI
 │   ├── cli.py               # command-line interface
 │   ├── evaluate.py          # batch evaluation for the report
+│   ├── retrieval_sweep.py   # retrieval-only experiment (chunk size x embedding model)
 │   ├── eval/cs_handbook_questions.json
 │   ├── data/handbook/       # CS_MajorHandbook.pdf (Task 2)
 │   ├── data/docs/           # mixed TXT/PDF documents (Task 1 demo)
@@ -119,8 +141,33 @@ python evaluate.py --models qwen2.5:0.5b qwen2.5:1.5b qwen2.5:3b
 
 Results are written to `eval/results/<timestamp>/` as `results.csv`, `results.json` and `summary.md`.
 Each row contains the answer, retrieved pages, whether an expected page was retrieved, a keyword
-score and latency. The `label` column is left empty for manual grading
-(correct / incorrect / incomplete / ambiguous) to use in the report.
+score, whether the model refused, and latency. The `label` column is left empty for manual grading
+(correct / incorrect / incomplete / ambiguous) to use in the report. A question can list earlier
+turns under `"history"`; they are asked first, so follow-up questions are tested with real chat history.
+
+The labelled run used in the report is kept in [`eval/results/final/`](source_code/eval/results/final)
+(`labels_summary.md` has the per-model counts).
+
+Results of that run (strict mode, `mxbai-embed-large`, 1,000/200 chunks, top-5, temperature 0.2;
+every answer labelled by hand):
+
+| Model | Answerable questions correct | Correct refusals | Mean latency* |
+|---|---|---|---|
+| qwen3.5:9b | 20/23 | 4/4 | 17.8 s |
+| gemma3:4b | 19/23 | 4/4 | 11.3 s |
+| llama3.2:3b | 18/23 | 4/4 | 9.4 s |
+| qwen2.5:3b | 16/23 | 4/4 | 7.3 s |
+| qwen3.5:0.8b | 12/23 | 4/4 | 9.6 s |
+| qwen2.5:0.5b-instruct | 10/23 | 2/4 | 6.6 s |
+
+\*Shared remote GPU server; indicative only. Retrieval found an expected page for 22 of 23 questions.
+See the report for the error analysis and the before/after comparison of the strict-mode fixes.
+
+Retrieval only (no LLM), comparing chunk sizes and embedding models:
+
+```bash
+python retrieval_sweep.py --embed-models mxbai-embed-large qwen3-embedding:8b --chunk-sizes 500 1000 1500
+```
 
 ### Tests
 
@@ -169,14 +216,19 @@ All settings can be set as environment variables or in `source_code/.env`
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama server |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Ollama server (a trailing `/v1` is ignored) |
+| `OLLAMA_API_KEY` | _(empty)_ | bearer token for a protected Ollama server; `LLM_API_KEY` is also accepted |
 | `RAG_LLM_MODEL` | `qwen2.5:0.5b` | chat model |
 | `RAG_EMBED_MODEL` | `nomic-embed-text` | embedding model |
+| `RAG_THINK` | `false` | let "thinking" models (qwen3, qwen3.5, deepseek-r1) reason before answering; off because small ones can reason for minutes and return nothing |
+| `RAG_MAX_TOKENS` | `1024` | max tokens generated per answer |
+| `RAG_NUM_CTX` | `8192` | context window requested from Ollama |
+| `RAG_REQUEST_TIMEOUT` | `180` | seconds before an Ollama request is abandoned |
 | `RAG_DATA_DIR` | `data/handbook` | folder of documents to index |
 | `RAG_VECTOR_STORE_DIR` | `vector_store` | Chroma persistence folder |
 | `RAG_CHUNK_SIZE` / `RAG_CHUNK_OVERLAP` | `1000` / `200` | chunking (characters) |
 | `RAG_TOP_K` | `5` | chunks retrieved per question |
-| `RAG_SCORE_THRESHOLD` | `0.3` | minimum cosine similarity to keep a chunk |
+| `RAG_SCORE_THRESHOLD` | _(auto)_ | minimum cosine similarity to keep a chunk; unset = 0.55 for `mxbai-embed-large`, 0.3 for other models |
 | `RAG_ALLOW_GENERAL_KNOWLEDGE` | `false` | allow answers from model knowledge |
 | `RAG_TEMPERATURE` | `0.2` | sampling temperature |
 | `RAG_HISTORY_TURNS` | `3` | previous Q/A pairs sent to the model |
@@ -186,7 +238,13 @@ All settings can be set as environment variables or in `source_code/.env`
 - Text inside images (scanned pages, diagrams) is not extracted; such pages are skipped with a
   warning. Page 10 of the CS handbook is an example. OCR would be needed.
 - Tables are flattened to plain text by `pypdf`, so table-heavy questions (course catalogue,
-  PLO mapping) can be answered incompletely.
+  PLO mapping) can be answered incompletely; e.g. "CS210 Computer Networks On holding CS201" is read
+  by small models as "offered on holding CS201".
+- The CS handbook's font maps ligatures to wrong characters, so a few words are extracted as
+  "Educa8onal Objec8ves", "Descrip;on" or "A2ributes".
+- An off-topic follow-up can pass the relevance threshold because the previous question is added
+  to the retrieval query; strict mode then relies on the model to refuse (3B+ models do, the 0.5B
+  model did not).
 - Small models (e.g. `qwen2.5:0.5b`) can ignore instructions, mix up similar courses, or hallucinate.
   Larger models are noticeably better but slower.
 - The handbook itself contains inconsistencies (e.g. the degree-requirements section mentions
