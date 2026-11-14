@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -43,9 +44,22 @@ def _env_bool(name: str, default: bool) -> bool:
     return os.getenv(name, str(default)).strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _env_optional_float(name: str) -> Optional[float]:
+    value = os.getenv(name, "").strip()
+    return float(value) if value else None
+
+
 def _env_path(name: str, default: Path) -> Path:
     value = Path(os.getenv(name, str(default)))
     return value if value.is_absolute() else (SOURCE_ROOT / value).resolve()
+
+
+# Cosine similarity is not comparable across embedding models, so the "is this chunk relevant?"
+# cut-off depends on the model. Measured on the CS handbook: with
+# mxbai-embed-large, handbook questions score 0.61-0.88 (top-1) while unrelated questions
+# ("Who won the 2022 World Cup?", "hello") still score 0.29-0.50, so 0.3 would let everything in.
+CALIBRATED_SCORE_THRESHOLDS = {"mxbai-embed-large": 0.55}
+DEFAULT_SCORE_THRESHOLD = 0.3
 
 
 @dataclass(frozen=True)
@@ -78,14 +92,22 @@ class Settings:
 
     # Retrieval
     top_k: int = field(default_factory=lambda: _env_int("RAG_TOP_K", 5))
-    # Minimum cosine similarity (0..1) of the best chunk before the context is trusted.
-    score_threshold: float = field(default_factory=lambda: _env_float("RAG_SCORE_THRESHOLD", 0.3))
+    # Minimum cosine similarity (0..1) for a chunk to be used. None = calibrated default for the
+    # embedding model (see `min_score`).
+    score_threshold: Optional[float] = field(default_factory=lambda: _env_optional_float("RAG_SCORE_THRESHOLD"))
     # If True the model may fall back to its own knowledge when retrieval is weak
     # (baseline behaviour). If False it must say it does not know.
     allow_general_knowledge: bool = field(default_factory=lambda: _env_bool("RAG_ALLOW_GENERAL_KNOWLEDGE", False))
 
     # Conversation
     history_turns: int = field(default_factory=lambda: _env_int("RAG_HISTORY_TURNS", 3))
+
+    @property
+    def min_score(self) -> float:
+        """Similarity cut-off actually used: the explicit setting, else the model's calibrated value."""
+        if self.score_threshold is not None:
+            return self.score_threshold
+        return CALIBRATED_SCORE_THRESHOLDS.get(self.embed_model.removesuffix(":latest"), DEFAULT_SCORE_THRESHOLD)
 
     def with_overrides(self, **overrides) -> "Settings":
         """Return a copy with some fields replaced (ignores `None` values)."""
