@@ -1,8 +1,7 @@
 """Central configuration for the RAG system.
 
 Every setting has a sensible default and can be overridden with an environment
-variable (or a `.env` file in `source_code/`). This keeps the same code usable
-locally, inside Docker, and in evaluation scripts.
+variable (or a `.env` file in `source_code/`).
 """
 
 from __future__ import annotations
@@ -53,14 +52,8 @@ def _env_path(name: str, default: Path) -> Path:
     value = Path(os.getenv(name, str(default)))
     return value if value.is_absolute() else (SOURCE_ROOT / value).resolve()
 
-
-# Cosine similarity is not comparable across embedding models, so the "is this chunk relevant?"
-# cut-off depends on the model. Measured on the CS handbook: with
-# mxbai-embed-large, handbook questions score 0.61-0.88 (top-1) while unrelated questions
-# ("Who won the 2022 World Cup?", "hello") still score 0.29-0.50, so 0.3 would let everything in.
 CALIBRATED_SCORE_THRESHOLDS = {"mxbai-embed-large": 0.55}
 DEFAULT_SCORE_THRESHOLD = 0.3
-
 
 @dataclass(frozen=True)
 class Settings:
