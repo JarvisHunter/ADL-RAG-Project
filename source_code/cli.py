@@ -8,7 +8,7 @@ Usage:
     python cli.py chat                           # interactive chat with history
 
 Common options (before the sub-command):
-    --data-dir PATH   folder of .pdf/.txt/.md documents (default: data/handbook)
+    --data-dir PATH   folder of .pdf/.txt/.md documents (default: data/docs)
     --model NAME      Ollama LLM, e.g. qwen2.5:1.5b
     --top-k N         number of chunks to retrieve
 """

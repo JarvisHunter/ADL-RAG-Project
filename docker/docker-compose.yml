@@ -20,7 +20,7 @@ services:
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-${LLM_API_KEY:-}}
       RAG_LLM_MODEL: ${RAG_LLM_MODEL:-qwen2.5:0.5b}
       RAG_EMBED_MODEL: ${RAG_EMBED_MODEL:-nomic-embed-text}
-      RAG_DATA_DIR: /app/data/${RAG_DOCS_SUBDIR:-handbook}
+      RAG_DATA_DIR: /app/data/${RAG_DOCS_SUBDIR:-docs}
       RAG_TOP_K: ${RAG_TOP_K:-5}
     extra_hosts:
       # Lets Linux hosts resolve host.docker.internal (Docker Desktop does this automatically).

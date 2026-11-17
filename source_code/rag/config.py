@@ -58,7 +58,7 @@ DEFAULT_SCORE_THRESHOLD = 0.3
 @dataclass(frozen=True)
 class Settings:
     # Documents & vector store
-    data_dir: Path = field(default_factory=lambda: _env_path("RAG_DATA_DIR", SOURCE_ROOT / "data" / "handbook"))
+    data_dir: Path = field(default_factory=lambda: _env_path("RAG_DATA_DIR", SOURCE_ROOT / "data" / "docs"))
     vector_store_dir: Path = field(default_factory=lambda: _env_path("RAG_VECTOR_STORE_DIR", SOURCE_ROOT / "vector_store"))
     collection: str = field(default_factory=lambda: _env("RAG_COLLECTION", "rag_documents"))
 

@@ -74,8 +74,7 @@ Other improvements over the baseline `sample_code/run_txt.py`:
 │   ├── evaluate.py          # batch evaluation for the report
 │   ├── retrieval_sweep.py   # retrieval-only experiment (chunk size x embedding model)
 │   ├── eval/cs_handbook_questions.json
-│   ├── data/handbook/       # CS_MajorHandbook.pdf (Task 2)
-│   ├── data/docs/           # mixed TXT/PDF documents (Task 1 demo)
+│   ├── data/docs/           # CS_MajorHandbook.pdf + mixed TXT/PDF documents
 │   ├── tests/               # pytest suite (runs without Ollama)
 │   └── requirements.txt
 ├── docker/                  # Dockerfile, docker-compose.yml
@@ -224,7 +223,7 @@ All settings can be set as environment variables or in `source_code/.env`
 | `RAG_MAX_TOKENS` | `1024` | max tokens generated per answer |
 | `RAG_NUM_CTX` | `8192` | context window requested from Ollama |
 | `RAG_REQUEST_TIMEOUT` | `180` | seconds before an Ollama request is abandoned |
-| `RAG_DATA_DIR` | `data/handbook` | folder of documents to index |
+| `RAG_DATA_DIR` | `data/docs` | folder of documents to index |
 | `RAG_VECTOR_STORE_DIR` | `vector_store` | Chroma persistence folder |
 | `RAG_CHUNK_SIZE` / `RAG_CHUNK_OVERLAP` | `1000` / `200` | chunking (characters) |
 | `RAG_TOP_K` | `5` | chunks retrieved per question |

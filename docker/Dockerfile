@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     OLLAMA_BASE_URL=http://host.docker.internal:11434 \
-    RAG_DATA_DIR=/app/data/handbook \
+    RAG_DATA_DIR=/app/data/docs \
     RAG_VECTOR_STORE_DIR=/app/vector_store
 
 WORKDIR /app
