@@ -3,7 +3,7 @@
 A fully local Retrieval-Augmented Generation (RAG) system that answers questions about PDF and text
 documents, built for the CS311 Advanced Deep Learning final project. Documents are chunked,
 embedded with an Ollama embedding model, stored in ChromaDB, and answered by a local LLM served by
-Ollama. Nothing leaves your machine.
+Ollama. 
 
 ```
 Documents (PDF/TXT) ──► pypdf + cleaning ──► chunks ──► embeddings ──► ChromaDB
@@ -13,20 +13,6 @@ User question (+ chat history) ────────────────�
                                             prompt (context + history) ──► Ollama LLM ──► answer + sources
 ```
 
-## Project status
-
-_Last updated: 2026-11-14_
-
-| Task | Status | Where |
-|---|---|---|
-| 1. PDF support | ✅ Done | `rag/loaders.py`; demo folder `source_code/data/docs/` (3 TXT + 1 PDF) |
-| 2. Handbook chatbot + evaluation | ✅ Done | 27 questions × 6 models, every answer labelled by hand: `source_code/eval/results/final/` |
-| 3. Docker deployment | ✅ Done | `docker/`; verified build → healthy → CLI and UI in the container → down |
-| 4. Web UI | ✅ Done | `source_code/app.py` |
-| 5. Report (≥ 1,500 words) | ✅ Done | `report/report.pdf` (source: `report/report.md`); fill in your name and student ID |
-| 6. Demo videos (Tasks 1–4) | ✅ Recorded | `demo_video/*.mp4` (git-ignored); add the upload links in `demo_video/README.md` |
-| 7. Repository | ✅ Done | this README, 18 pytest tests (no Ollama needed), `.env.example` files |
-
 ## Features
 
 | Task | What is implemented | Where |
@@ -35,27 +21,8 @@ _Last updated: 2026-11-14_
 | 2. Handbook chatbot | CS major handbook indexed by default; 27 test questions across requirements, courses, outcomes, policies, ambiguous, out-of-scope, off-topic and multi-turn follow-up cases; evaluation script with multi-model comparison; retrieval experiment over chunk size and embedding model | [`source_code/eval/`](source_code/eval), [`source_code/evaluate.py`](source_code/evaluate.py) |
 | 3. Docker | `Dockerfile` + `docker-compose.yml`, mounted documents, persistent vector-store volume, health check | [`docker/`](docker) |
 | 4. Web UI | Streamlit chat with conversation history, streaming answers, cited sources with similarity scores, model/top-k/temperature controls, document upload, index rebuild, chat export | [`source_code/app.py`](source_code/app.py) |
-| 7. Repo | This README, tests, reproducible configuration | — |
 
-Other improvements over the baseline `sample_code/run_txt.py`:
 
-- **Automatic re-indexing**: a manifest of file hashes and chunking/embedding settings is stored with
-  the vector store, so the index is rebuilt when documents or settings change (the baseline reused a
-  stale index forever).
-- **Cosine similarity** instead of L2 distance, so scores are in `[0, 1]` and the threshold is meaningful.
-- **Calibrated relevance threshold**: similarity values depend on the embedding model. With
-  `mxbai-embed-large`, handbook questions score 0.61–0.88 but unrelated ones still score up to 0.50,
-  so the default cut-off is 0.55 for that model (0.3 otherwise); `RAG_SCORE_THRESHOLD` overrides it.
-- **Strict grounding mode** (default): the model answers only from the handbook and says
-  "I could not find this in the documents" otherwise. When nothing relevant is retrieved this reply
-  is returned without calling the model, and the rule is repeated right after the question because
-  small models forget the system prompt after a few chat turns. The baseline general-knowledge
-  fallback is still available (`RAG_ALLOW_GENERAL_KNOWLEDGE=true` or the UI toggle).
-- **Citations**: every chunk is labelled `[file p.N]` and the prompt asks the model to cite them
-  (the citation example in the prompt is a label that was actually retrieved, so small models do not
-  copy a fixed file name).
-- **Follow-up questions**: the previous question is used as an extra retrieval query and the last few
-  turns are sent to the model.
 
 ## Repository layout
 
@@ -174,7 +141,7 @@ python retrieval_sweep.py --embed-models mxbai-embed-large qwen3-embedding:8b --
 pytest -q          # uses fake embeddings/LLM, no Ollama required
 ```
 
-## Docker deployment (Task 3)
+## Docker deployment
 
 Ollama runs on the host; the container connects to it via `host.docker.internal`.
 
@@ -231,20 +198,3 @@ All settings can be set as environment variables or in `source_code/.env`
 | `RAG_ALLOW_GENERAL_KNOWLEDGE` | `false` | allow answers from model knowledge |
 | `RAG_TEMPERATURE` | `0.2` | sampling temperature |
 | `RAG_HISTORY_TURNS` | `3` | previous Q/A pairs sent to the model |
-
-## Known limitations
-
-- Text inside images (scanned pages, diagrams) is not extracted; such pages are skipped with a
-  warning. Page 10 of the CS handbook is an example. OCR would be needed.
-- Tables are flattened to plain text by `pypdf`, so table-heavy questions (course catalogue,
-  PLO mapping) can be answered incompletely; e.g. "CS210 Computer Networks On holding CS201" is read
-  by small models as "offered on holding CS201".
-- The CS handbook's font maps ligatures to wrong characters, so a few words are extracted as
-  "Educa8onal Objec8ves", "Descrip;on" or "A2ributes".
-- An off-topic follow-up can pass the relevance threshold because the previous question is added
-  to the retrieval query; strict mode then relies on the model to refuse (3B+ models do, the 0.5B
-  model did not).
-- Small models (e.g. `qwen2.5:0.5b`) can ignore instructions, mix up similar courses, or hallucinate.
-  Larger models are noticeably better but slower.
-- The handbook itself contains inconsistencies (e.g. the degree-requirements section mentions
-  "Bachelor of Science in Applied Mathematics"), which can mislead the model.

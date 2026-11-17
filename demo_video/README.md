@@ -1,16 +1,14 @@
 # Demo videos
 
-One video per task (Tasks 1–4), 1280×720 H.264, recorded from the running system (real commands
-and real model output, no editing). Captions on screen explain each step. The files are small
-(2–3 MB each); they are git-ignored by default, so upload them to Canvas or a drive and put the
-links in the last column.
+One screen recording per task (Tasks 1–4), recorded from the running system (real commands and real
+model output). The files are 19–34 MB each and git-ignored, so upload them to Canvas or a drive and
+put the links in the last column.
 
 | Task | File | Length | What it shows | Link |
 |---|---|---|---|---|
-| 1. PDF support | `task1_pdf_support.mp4` | 2:23 | Baseline `*.txt` loader vs. new PDF loader; indexing a folder of 3 TXT files + 1 PDF; questions answered from the PDF (with page citations and `--show-context`) and from a TXT file | |
-| 2. Handbook chatbot | `task2_handbook_chatbot.mp4` | 3:38 | CS handbook indexing; the same question answered wrongly by qwen3.5:0.8b and correctly by gemma3:4b; a policy question with a citation; interactive chat with a follow-up and an off-topic question; `evaluate.py`; the labelled 6-model results | |
-| 3. Docker deployment | `task3_docker.mp4` | 1:57 | Dockerfile and compose file; `docker compose up -d --build`; health check; CLI inside the container; persistent volume; the web UI served from the container; `docker compose down` | |
-| 4. Web UI | `task4_web_ui.mp4` | 2:53 | Streamlit chat: example questions, streamed answers, sources with similarity, conversation history, off-topic refusal, model switch, PDF upload, export and clear | |
+| 1. PDF support | `task1.mp4` | 1:09 | `cli.py --data-dir data/docs ingest --rebuild` indexing 3 TXT files + 1 PDF (4 files, 115 chunks, page 10 flagged as image-only); the resulting Chroma database opened to show the chunk text and the `source` / `page` / `file_type` metadata | |
+| 2. Handbook chatbot | `task2.mp4` | 1:00 | `cmd_ask` in `cli.py`; `cli.py ask` for the CS minor credits (24) and major credits (56), both cited to `CS_MajorHandbook.pdf p.7` with the retrieved sources; "hello" refused in about 2 s without calling the model | |
+| 3. Docker deployment | `task3.mp4` | 1:07 | `docker-compose.yml` and the `Dockerfile`; `docker compose up -d --build`; `docker ps` showing the container as healthy; `docker compose exec rag-app python cli.py ask "What is CS 201 about?"` answered from p.16 | |
+| 4. Web UI | `task4.mp4` | 1:51 | Streamlit app on port 8501: settings (model, top-k, temperature, strict mode, sources), indexed files, upload and rebuild controls; "What is the course CS201 about?" with the expanded sources and similarities; "Who is the professor of the course?" refused; a question about total degree credits | |
 
-The recordings use `qwen3.5:0.8b` by default (`gemma3:4b` in Task 2 and `qwen2.5:3b` in the Task 4 model-switch step) with
-`mxbai-embed-large`, served by a self-hosted Ollama server.
+The recordings use `qwen3.5:0.8b` with `mxbai-embed-large`, served by a self-hosted Ollama server.
